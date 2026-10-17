@@ -10,17 +10,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Godot 3.6 and export templates
         run: |
-          curl --fail --location --silent --show-error https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_linux.x86_64.zip --output godot.zip
+          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_x11.64.zip -O godot.zip
           unzip -q godot.zip -d godot-bin
-          chmod +x godot-bin/Godot_v3.6-stable_linux.x86_64
+          chmod +x godot-bin/Godot_v3.6-stable_x11.64
           mkdir -p ~/.local/share/godot/templates/3.6.stable
-          curl --fail --location --silent --show-error https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_export_templates.tpz --output templates.tpz
+          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_export_templates.tpz -O templates.tpz
           unzip -q templates.tpz -d templates
           cp -r templates/templates/* ~/.local/share/godot/templates/3.6.stable/
       - name: Export Windows Desktop
         run: |
           mkdir -p build/windows
-          godot-bin/Godot_v3.6-stable_linux.x86_64 --no-window --path . --export "Windows Desktop" build/windows/ShinobiArena.exe
+          godot-bin/Godot_v3.6-stable_x11.64 --no-window --path . --export "Windows Desktop" build/windows/ShinobiArena.exe
       - uses: actions/upload-artifact@v4
         with:
           name: shinobi-arena-windows-desktop
