@@ -1,0 +1,61 @@
+name: Validate Godot 3.6
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot 3.6
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_linux.x86_64.zip -O godot.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v3.6-stable_linux.x86_64
+      - name: Import project and parse scripts
+        run: godot-bin/Godot_v3.6-stable_linux.x86_64 --no-window --editor --path . --quit
+      - name: Smoke test
+        run: timeout 20s godot-bin/Godot_v3.6-stable_linux.x86_64 --no-window --path . --quit-after 3
+
+  deploy_pages:
+    name: Export and deploy HTML5 to GitHub Pages
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Install Godot 3.6 and HTML5 export templates
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_linux.x86_64.zip -O godot.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v3.6-stable_linux.x86_64
+          mkdir -p ~/.local/share/godot/templates/3.6.stable
+          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_export_templates.tpz -O templates.tpz
+          unzip -q templates.tpz -d templates
+          cp -r templates/templates/* ~/.local/share/godot/templates/3.6.stable/
+      - name: Export HTML5 project
+        run: |
+          mkdir -p build/web
+          godot-bin/Godot_v3.6-stable_linux.x86_64 --no-window --path . --export "HTML5" build/web/index.html
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/web
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
