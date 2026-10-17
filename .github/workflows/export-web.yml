@@ -10,11 +10,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Godot 3.6 and HTML5 export templates
         run: |
-          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_linux.x86_64.zip -O godot.zip
+          curl --fail --location --silent --show-error https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_linux.x86_64.zip --output godot.zip
           unzip -q godot.zip -d godot-bin
           chmod +x godot-bin/Godot_v3.6-stable_linux.x86_64
           mkdir -p ~/.local/share/godot/templates/3.6.stable
-          wget -q https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_export_templates.tpz -O templates.tpz
+          curl --fail --location --silent --show-error https://github.com/godotengine/godot/releases/download/3.6-stable/Godot_v3.6-stable_export_templates.tpz --output templates.tpz
           unzip -q templates.tpz -d templates
           cp -r templates/templates/* ~/.local/share/godot/templates/3.6.stable/
       - name: Export HTML5
