@@ -19,5 +19,6 @@ window/stretch/aspect="keep"
 
 [rendering]
 quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
 quality/2d/use_pixel_snap=false
 environment/default_clear_color=Color(0.035, 0.045, 0.08, 1)
