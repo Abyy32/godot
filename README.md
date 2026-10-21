@@ -94,8 +94,10 @@ HUD menyediakan tombol sentuh untuk gerak, lompat, guard, serangan, skill, dan d
 | `kairo` | Kairo | Seimbang | 100 | 280 | 12 |
 | `ren` | Ren | Cepat | 86 | 350 | 9 |
 | `daigo` | Daigo | Berat | 125 | 220 | 17 |
+| `luna` | Luna | Lunar | 96 | 315 | 11 |
+| `sara` | Sara | Duelist | 90 | 320 | 13 |
 
-Data karakter dan arena berada di `scripts/game_session.gd`. AI dapat mendekat, mundur, menyerang, menjaga, atau menggunakan skill berdasarkan jarak, HP, energi, dan peluang acak. Atlas sprite masing-masing berukuran 1536×1024, berisi delapan sel 384×512: idle, lari, lompat, guard, serangan ringan/berat, skill, dan KO. Detail atlas ada di [`assets/sprites/README.md`](assets/sprites/README.md).
+Data karakter dan arena berada di `scripts/game_session.gd`. AI dapat mendekat, mundur, menyerang, menjaga, atau menggunakan skill berdasarkan jarak, HP, energi, dan peluang acak. Kelima atlas sprite masing-masing berukuran 1536×1024, berisi delapan sel 384×512: idle, lari, lompat, guard, serangan ringan/berat, skill, dan KO. Detail atlas ada di [`assets/sprites/README.md`](assets/sprites/README.md).
 
 ## Sistem pertarungan
 

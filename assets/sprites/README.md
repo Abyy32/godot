@@ -1,6 +1,6 @@
 # Atlas karakter
 
-Tiga atlas PNG transparan berukuran 1536×1024 dibuat sebagai seni prototipe menggunakan OpenAI ImageGen. Desain karakter adalah prototipe orisinal, bukan karakter berlisensi dari waralaba lain.
+Lima atlas PNG transparan berukuran 1536×1024 dibuat sebagai seni prototipe menggunakan OpenAI ImageGen. `luna_atlas.png` dan `sara_atlas.png` mengikuti format dan skala sel yang sama dengan atlas Kairo, Ren, dan Daigo. Desain karakter adalah prototipe orisinal, bukan karakter berlisensi dari waralaba lain.
 
 Setiap atlas berisi empat kolom dan dua baris; ukuran setiap sel adalah 384×512. Urutan sel:
 

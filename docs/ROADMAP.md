@@ -5,7 +5,7 @@
 - [x] Arena dan gambar petarung prosedural/atlas sprite prototipe
 - [x] Gerak, lompat, serangan, dash, proyektil, guard, dan kombo dasar
 - [x] AI lawan, HUD, dan kontrol sentuh
-- [x] Pilihan karakter dan tiga arena
+- [x] Pilihan lima karakter dan tiga arena
 - [x] Pengaturan lokal dan rekor pertandingan
 - [x] Port kode/config proyek ke target Godot 3.6
 - [x] Preset ekspor HTML5 dan workflow GitHub Actions untuk validasi/deploy

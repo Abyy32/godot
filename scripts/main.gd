@@ -181,7 +181,7 @@ func _button(parent, caption, method_name, binds = [], minimum = Vector2(0, 48))
 
 func _show_home():
 	screen = "home"
-	var column = _panel(_new_ui(), "SHINOBI ARENA", "Three fighters. Three arenas. Choose your path.")
+	var column = _panel(_new_ui(), "SHINOBI ARENA", "%d fighters. Three arenas. Choose your path." % GameSession.CHARACTER_DATA.size())
 	_button(column, "QUICK BATTLE", "_show_mode_select", [], Vector2(0, 52))
 	_button(column, "PRACTICE DOJO", "_start_practice", [], Vector2(0, 52))
 	_button(column, "COLLECTION", "_show_collection")
@@ -499,7 +499,7 @@ func _show_credits():
 
 func _show_collection():
 	screen = "collection"
-	var column = _panel(_new_ui(), "COLLECTION", "Original prototype roster • all three fighters are available")
+	var column = _panel(_new_ui(), "COLLECTION", "Original prototype roster • %d fighters available" % GameSession.CHARACTER_DATA.size())
 	for character in GameSession.CHARACTER_DATA:
 		_label(column, "%s  •  %s  •  %d HP  •  %s" % [character.name, character.role, int(character.hp), "Unlocked" if character.unlocked else "Locked"])
 	_label(column, "Record: %d wins  •  %d losses  •  %d draws" % [GameSession.progress.wins, GameSession.progress.losses, GameSession.progress.draws], 16, true)

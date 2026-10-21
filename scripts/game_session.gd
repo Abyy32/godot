@@ -3,7 +3,9 @@ extends Node
 const CHARACTER_DATA = [
 	{"id": "kairo", "name": "Kairo", "role": "Balanced", "description": "A versatile fighter with steady speed and power.", "hp": 100.0, "speed": 280.0, "power": 12.0, "color": Color("#2a9dca"), "accent": Color("#d9f3ff"), "sprite_path": "res://assets/sprites/kairo_atlas.png", "unlocked": true},
 	{"id": "ren", "name": "Ren", "role": "Fast", "description": "A quick striker who relies on movement.", "hp": 86.0, "speed": 350.0, "power": 9.0, "color": Color("#bd5ad6"), "accent": Color("#f1caff"), "sprite_path": "res://assets/sprites/ren_atlas.png", "unlocked": true},
-	{"id": "daigo", "name": "Daigo", "role": "Heavy", "description": "A durable fighter with powerful attacks.", "hp": 125.0, "speed": 220.0, "power": 17.0, "color": Color("#c56c3c"), "accent": Color("#ffe0aa"), "sprite_path": "res://assets/sprites/daigo_atlas.png", "unlocked": true}
+	{"id": "daigo", "name": "Daigo", "role": "Heavy", "description": "A durable fighter with powerful attacks.", "hp": 125.0, "speed": 220.0, "power": 17.0, "color": Color("#c56c3c"), "accent": Color("#ffe0aa"), "sprite_path": "res://assets/sprites/daigo_atlas.png", "unlocked": true},
+	{"id": "luna", "name": "Luna", "role": "Lunar", "description": "A nimble lunar shinobi who channels moonlight into precise strikes.", "hp": 96.0, "speed": 315.0, "power": 11.0, "color": Color("#5867a8"), "accent": Color("#d6dcff"), "sprite_path": "res://assets/sprites/luna_atlas.png", "unlocked": true},
+	{"id": "sara", "name": "Sara", "role": "Duelist", "description": "A quick female shinobi who mixes precise strikes with flowing energy attacks.", "hp": 90.0, "speed": 320.0, "power": 13.0, "color": Color("#368b75"), "accent": Color("#f3bf8a"), "sprite_path": "res://assets/sprites/sara_atlas.png", "unlocked": true}
 ]
 
 const ARENA_DATA = [
