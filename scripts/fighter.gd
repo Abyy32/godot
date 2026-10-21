@@ -102,9 +102,12 @@ func _physics_process(delta):
     hitbox_active_time=max(0.0,hitbox_active_time-delta)
     dash_timer=max(0,dash_timer-delta); hit_flash=max(0,hit_flash-delta); attack_frame=max(0,attack_frame-delta)
     energy=min(100,energy+8*delta)
-    if is_instance_valid(opponent): facing=1 if opponent.global_position.x>global_position.x else -1
-    if not is_on_floor(): velocity.y+=1500*delta
-    else: velocity.y=0
+    if is_instance_valid(opponent):
+        facing = 1 if opponent.global_position.x > global_position.x else -1
+    if not is_on_floor():
+        velocity.y += 1500 * delta
+    else:
+        velocity.y = 0
     _controls()
     if attack_frame > 0.0 and attack_frame <= 0.105 and not attack_hit_done:
         _apply_melee_hit()
@@ -116,8 +119,11 @@ func _physics_process(delta):
     if combo_window <= 0.0:
         combo_step = 0
         combo_queued = false
-    if abs(knockback)>1: velocity.x=knockback; knockback=move_toward(knockback,0,900*delta)
-    elif dash_timer<=0 and (attack_frame<=0 or skill_animation_timer>0.0): velocity.x=move_toward(velocity.x,0,move_speed*7*delta)
+    if abs(knockback) > 1:
+        velocity.x = knockback
+        knockback = move_toward(knockback, 0, 900 * delta)
+    elif dash_timer <= 0 and (attack_frame <= 0 or skill_animation_timer > 0.0):
+        velocity.x = move_toward(velocity.x, 0, move_speed * 7 * delta)
     velocity = move_and_slide(velocity, Vector2.UP)
     global_position.x=clamp(global_position.x,arena_left,arena_right)
     if global_position.y>=535: global_position.y=535
@@ -139,10 +145,12 @@ func _controls():
     var d=Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
     if abs(d) > 0.1:
         facing = 1 if d > 0.0 else -1
-    if dash_timer<=0 and (attack_frame<=0 or skill_animation_timer>0.0) and abs(d)>.1:
-        velocity.x=d*move_speed*float(GameSession.settings.control_sensitivity)
-        if skill_animation_timer <= 0.0: action_state="run"
-    elif is_on_floor() and attack_frame<=0: action_state="idle"
+    if dash_timer <= 0 and (attack_frame <= 0 or skill_animation_timer > 0.0) and abs(d) > 0.1:
+        velocity.x = d * move_speed * float(GameSession.settings.control_sensitivity)
+        if skill_animation_timer <= 0.0:
+            action_state = "run"
+    elif is_on_floor() and attack_frame <= 0:
+        action_state = "idle"
     if Input.is_action_just_pressed("jump") and is_on_floor(): velocity.y=-560; action_state="jump"
     if Input.is_action_just_pressed("attack"):
         if attack_timer > 0.0:
