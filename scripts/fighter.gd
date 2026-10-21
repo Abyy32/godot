@@ -57,6 +57,7 @@ const ANIMATION_CELLS = {
 }
 
 func _ready():
+    add_to_group("fighters")
     health=max_health; collision_layer=1; collision_mask=1
     var cs=CollisionShape2D.new(); var cap=CapsuleShape2D.new()
     cap.radius=23; cap.height=112; cs.shape=cap; cs.position=Vector2(0,-57); add_child(cs); z_index=10

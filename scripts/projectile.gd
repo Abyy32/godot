@@ -22,5 +22,5 @@ func _draw():
     if not GameSession.settings.reduced_effects:
         draw_line(Vector2(-direction*10,0),Vector2(-direction*36,0),Color(c,.6),5 if GameSession.settings.effects_quality == "low" else 7)
 func _hit(body):
-    if body is ArenaFighter and body.team!=team:
+    if body.is_in_group("fighters") and body.team!=team:
         body.take_damage(damage,Vector2(direction*240,-110)); queue_free()
