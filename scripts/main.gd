@@ -24,9 +24,7 @@ var match_time = ROUND_SECONDS
 var match_elapsed = 0.0
 var match_finished = false
 var elapsed = 0.0
-var character_option
-var opponent_option
-var arena_option
+var character_selection_target = "player"
 var settings_controls = {}
 
 func _ready():
@@ -181,14 +179,135 @@ func _button(parent, caption, method_name, binds = [], minimum = Vector2(0, 48))
 
 func _show_home():
 	screen = "home"
-	var column = _panel(_new_ui(), "SHINOBI ARENA", "%d fighters. Three arenas. Choose your path." % GameSession.CHARACTER_DATA.size())
-	_button(column, "QUICK BATTLE", "_show_mode_select", [], Vector2(0, 52))
-	_button(column, "PRACTICE DOJO", "_start_practice", [], Vector2(0, 52))
-	_button(column, "COLLECTION", "_show_collection")
-	_button(column, "SETTINGS", "_show_settings")
-	_button(column, "CREDITS", "_show_credits")
+	var root = _new_ui()
+	var layout = HBoxContainer.new()
+	layout.anchor_left = 0.04
+	layout.anchor_top = 0.08
+	layout.anchor_right = 0.96
+	layout.anchor_bottom = 0.92
+	layout.add_constant_override("separation", 20)
+	root.add_child(layout)
+
+	var featured = GameSession.character_by_id(GameSession.player_character_id)
+	var hero_panel = PanelContainer.new()
+	hero_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hero_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero_panel.size_flags_stretch_ratio = 1.7
+	hero_panel.add_stylebox_override("panel", _panel_style())
+	layout.add_child(hero_panel)
+
+	var hero_margin = MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		hero_margin.add_constant_override("margin_" + side, 20 if side != "top" else 24)
+	hero_panel.add_child(hero_margin)
+	var hero_content = VBoxContainer.new()
+	hero_content.add_constant_override("separation", 12)
+	hero_margin.add_child(hero_content)
+	_home_label(hero_content, "2D SHINOBI FIGHTING", Color("#79d9e8"))
+	_home_label(hero_content, "SHINOBI ARENA", Color("#f0f6ff"))
+	_home_label(hero_content, "Choose your fighter. Master the arena.", Color("#aabbd0"))
+
+	var feature_row = HBoxContainer.new()
+	feature_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	feature_row.add_constant_override("separation", 16)
+	hero_content.add_child(feature_row)
+	var portrait = TextureRect.new()
+	var atlas = load(featured.sprite_path)
+	if atlas != null:
+		var portrait_texture = AtlasTexture.new()
+		portrait_texture.atlas = atlas
+		portrait_texture.region = Rect2(0, 0, 384, 512)
+		portrait.texture = portrait_texture
+	portrait.expand = true
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	portrait.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	feature_row.add_child(portrait)
+
+	var profile = VBoxContainer.new()
+	profile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	profile.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	profile.add_constant_override("separation", 10)
+	feature_row.add_child(profile)
+	_home_label(profile, "FEATURED FIGHTER", Color("#79d9e8"))
+	_home_label(profile, featured.name, Color("#f0f6ff"))
+	_home_label(profile, featured.role.to_upper(), featured.accent)
+	_home_label(profile, featured.description, Color("#bdcadd"))
+	profile.add_child(HSeparator.new())
+	_home_label(profile, "HP  %d" % int(featured.hp), Color("#f0f6ff"))
+	_home_label(profile, "SPEED  %d" % int(featured.speed), Color("#f0f6ff"))
+	_home_label(profile, "POWER  %d" % int(featured.power), Color("#f0f6ff"))
+	var profile_spacer = Control.new()
+	profile_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	profile.add_child(profile_spacer)
+	_home_label(profile, "%d FIGHTERS  •  3 ARENAS" % GameSession.CHARACTER_DATA.size(), Color("#aabbd0"))
+
+	var menu_panel = PanelContainer.new()
+	menu_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	menu_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	menu_panel.size_flags_stretch_ratio = 1.0
+	menu_panel.add_stylebox_override("panel", _panel_style())
+	layout.add_child(menu_panel)
+	var menu_margin = MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		menu_margin.add_constant_override("margin_" + side, 18)
+	menu_panel.add_child(menu_margin)
+	var menu = VBoxContainer.new()
+	menu.add_constant_override("separation", 10)
+	menu_margin.add_child(menu)
+	_home_label(menu, "MAIN MENU", Color("#f0f6ff"))
+	_home_label(menu, "Ready when you are.", Color("#aabbd0"))
+	menu.add_child(HSeparator.new())
+	_home_menu_button(menu, "QUICK BATTLE", "_show_mode_select", true)
+	_home_menu_button(menu, "PRACTICE DOJO", "_start_practice")
+	_home_menu_button(menu, "FIGHTER COLLECTION", "_show_collection")
+	_home_menu_button(menu, "SETTINGS", "_show_settings")
+	_home_menu_button(menu, "CREDITS", "_show_credits")
 	if not OS.has_feature("HTML5"):
-		_button(column, "QUIT", "_quit_game")
+		_home_menu_button(menu, "QUIT", "_quit_game")
+	var menu_spacer = Control.new()
+	menu_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	menu.add_child(menu_spacer)
+	_home_label(menu, "MOVE  WASD / ARROWS     ATTACK  J", Color("#91a5bd"))
+	_home_label(menu, "SKILL  K     GUARD  H     DASH  L", Color("#91a5bd"))
+
+func _home_label(parent, text, color):
+	var label = Label.new()
+	label.text = text
+	label.autowrap = true
+	label.add_color_override("font_color", color)
+	parent.add_child(label)
+	return label
+
+func _home_menu_button(parent, caption, method_name, primary = false, binds = []):
+	var button = _button(parent, caption, method_name, binds, Vector2(0, 52))
+	var normal = StyleBoxFlat.new()
+	normal.bg_color = Color("#235e78") if primary else Color(0.08, 0.13, 0.2, 0.9)
+	normal.border_color = Color("#62cfe0") if primary else Color("#435b76")
+	normal.set_border_width_all(1)
+	normal.set_corner_radius_all(9)
+	normal.content_margin_left = 14
+	normal.content_margin_right = 14
+	var hover = StyleBoxFlat.new()
+	hover.bg_color = Color("#347f99") if primary else Color("#172b40")
+	hover.border_color = Color("#91e6f0") if primary else Color("#6b91ad")
+	hover.set_border_width_all(1)
+	hover.set_corner_radius_all(9)
+	hover.content_margin_left = 14
+	hover.content_margin_right = 14
+	var pressed = StyleBoxFlat.new()
+	pressed.bg_color = Color("#19475f")
+	pressed.border_color = Color("#79d9e8")
+	pressed.set_border_width_all(1)
+	pressed.set_corner_radius_all(9)
+	button.add_stylebox_override("normal", normal)
+	button.add_stylebox_override("hover", hover)
+	button.add_stylebox_override("focus", hover)
+	button.add_stylebox_override("pressed", pressed)
+	button.add_color_override("font_color", Color("#f2f7ff"))
+	button.add_color_override("font_color_hover", Color("#ffffff"))
+	button.add_color_override("font_color_pressed", Color("#ffffff"))
+	return button
 
 func _show_mode_select():
 	screen = "mode"
@@ -212,68 +331,276 @@ func _start_practice():
 	selection_return_screen = "home"
 	_show_character_select()
 
-func _show_character_select():
+func _show_character_select(preserve_selection = false):
 	screen = "character"
-	selected_character_id = GameSession.player_character_id
-	selected_opponent_id = GameSession.opponent_character_id
-	var column = _panel(_new_ui(), "CHOOSE YOUR SHINOBI", "Choose a player and rival.\nPlayer: %s    Rival: %s" % [GameSession.character_by_id(selected_character_id).name, GameSession.character_by_id(selected_opponent_id).name])
-	character_option = OptionButton.new()
-	opponent_option = OptionButton.new()
+	if not preserve_selection:
+		selected_character_id = GameSession.player_character_id
+		selected_opponent_id = GameSession.opponent_character_id
+		character_selection_target = "player"
+
+	var root = _new_ui()
+	var layout = VBoxContainer.new()
+	layout.anchor_left = 0.045
+	layout.anchor_top = 0.045
+	layout.anchor_right = 0.955
+	layout.anchor_bottom = 0.955
+	layout.add_constant_override("separation", 12)
+	root.add_child(layout)
+
+	var title_row = HBoxContainer.new()
+	layout.add_child(title_row)
+	_home_label(title_row, "CHOOSE YOUR SHINOBI", Color("#f0f6ff"))
+	var title_spacer = Control.new()
+	title_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title_spacer)
+	_home_label(title_row, "%d FIGHTERS  •  PICK PLAYER, THEN RIVAL" % GameSession.CHARACTER_DATA.size(), Color("#79d9e8"))
+
+	var target_row = HBoxContainer.new()
+	target_row.add_constant_override("separation", 10)
+	layout.add_child(target_row)
+	_home_menu_button(target_row, "1  PLAYER FIGHTER", "_set_character_selection_target", character_selection_target == "player", ["player"])
+	_home_menu_button(target_row, "2  RIVAL FIGHTER", "_set_character_selection_target", character_selection_target == "rival", ["rival"])
+	var target_hint = _home_label(target_row, "Choose a roster card below for the highlighted slot.", Color("#aabbd0"))
+	target_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	target_hint.align = Label.ALIGN_RIGHT
+
+	var preview_row = HBoxContainer.new()
+	preview_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	preview_row.add_constant_override("separation", 14)
+	layout.add_child(preview_row)
+	_add_character_preview(preview_row, "PLAYER 1", GameSession.character_by_id(selected_character_id), character_selection_target == "player")
+	_add_character_preview(preview_row, "RIVAL", GameSession.character_by_id(selected_opponent_id), character_selection_target == "rival")
+
+	_home_label(layout, "FIGHTER ROSTER", Color("#79d9e8"))
+	var roster_row = HBoxContainer.new()
+	roster_row.add_constant_override("separation", 10)
+	layout.add_child(roster_row)
+	var active_id = selected_character_id if character_selection_target == "player" else selected_opponent_id
 	for character in GameSession.CHARACTER_DATA:
-		character_option.add_item("%s  |  HP %d  SPEED %d  POWER %d" % [character.name, int(character.hp), int(character.speed), int(character.power)])
-		opponent_option.add_item("%s  |  %s" % [character.name, character.role])
-		if character.id == selected_character_id:
-			character_option.select(GameSession.CHARACTER_DATA.find(character))
-		if character.id == selected_opponent_id:
-			opponent_option.select(GameSession.CHARACTER_DATA.find(character))
-	column.add_child(_label(column, "PLAYER FIGHTER"))
-	column.add_child(character_option)
-	column.add_child(_label(column, "RIVAL FIGHTER"))
-	column.add_child(opponent_option)
-	_button(column, "BACK", "_go_back")
-	_button(column, "CONTINUE TO ARENA  >", "_confirm_character")
+		_add_character_card(roster_row, character, character.id == active_id)
+
+	var action_row = HBoxContainer.new()
+	action_row.add_constant_override("separation", 12)
+	layout.add_child(action_row)
+	_home_menu_button(action_row, "BACK", "_go_back")
+	var action_spacer = Control.new()
+	action_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_row.add_child(action_spacer)
+	_home_menu_button(action_row, "CONTINUE TO ARENA  >", "_confirm_character", true)
+
+func _add_character_preview(parent, slot_title, character, active):
+	var panel = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.035, 0.065, 0.12, 0.94)
+	style.border_color = character.accent if active else Color("#435b76")
+	style.set_border_width_all(2 if active else 1)
+	style.set_corner_radius_all(12)
+	panel.add_stylebox_override("panel", style)
+	parent.add_child(panel)
+
+	var margin = MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_constant_override("margin_" + side, 12)
+	panel.add_child(margin)
+	var row = HBoxContainer.new()
+	row.add_constant_override("separation", 12)
+	margin.add_child(row)
+	var portrait = _character_portrait(character, Vector2(150, 190))
+	portrait.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(portrait)
+	var details = VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_constant_override("separation", 7)
+	row.add_child(details)
+	_home_label(details, slot_title, Color("#79d9e8"))
+	_home_label(details, character.name, Color("#f0f6ff"))
+	_home_label(details, character.role.to_upper(), character.accent)
+	_home_label(details, character.description, Color("#bdcadd"))
+	details.add_child(HSeparator.new())
+	_home_label(details, "HP  %d     SPEED  %d" % [int(character.hp), int(character.speed)], Color("#f0f6ff"))
+	_home_label(details, "POWER  %d" % int(character.power), Color("#f0f6ff"))
+
+func _add_character_card(parent, character, selected):
+	var card = Button.new()
+	card.text = ""
+	card.focus_mode = Control.FOCUS_ALL
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.rect_min_size = Vector2(0, 172)
+	card.connect("pressed", self, "_on_character_card_pressed", [character.id])
+	var normal = StyleBoxFlat.new()
+	normal.bg_color = Color("#122238") if selected else Color(0.035, 0.065, 0.12, 0.94)
+	normal.border_color = character.accent if selected else Color("#435b76")
+	normal.set_border_width_all(2 if selected else 1)
+	normal.set_corner_radius_all(10)
+	normal.content_margin_left = 8
+	normal.content_margin_right = 8
+	normal.content_margin_top = 8
+	normal.content_margin_bottom = 8
+	var hover = StyleBoxFlat.new()
+	hover.bg_color = Color("#1a3048")
+	hover.border_color = character.accent
+	hover.set_border_width_all(2)
+	hover.set_corner_radius_all(10)
+	card.add_stylebox_override("normal", normal)
+	card.add_stylebox_override("hover", hover)
+	card.add_stylebox_override("focus", hover)
+	card.add_color_override("font_color", Color("#f0f6ff"))
+	parent.add_child(card)
+
+	var body = VBoxContainer.new()
+	body.anchor_right = 1.0
+	body.anchor_bottom = 1.0
+	body.margin_left = 4
+	body.margin_top = 4
+	body.margin_right = -4
+	body.margin_bottom = -4
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_constant_override("separation", 3)
+	card.add_child(body)
+	var portrait = _character_portrait(character, Vector2(0, 104))
+	portrait.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	portrait.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(portrait)
+	_selection_label(body, character.name, Color("#f0f6ff"))
+	_selection_label(body, character.role, character.accent)
+
+func _character_portrait(character, minimum_size):
+	var portrait = TextureRect.new()
+	var atlas = load(character.sprite_path)
+	if atlas != null:
+		var texture = AtlasTexture.new()
+		texture.atlas = atlas
+		texture.region = Rect2(0, 0, 384, 512)
+		portrait.texture = texture
+	portrait.expand = true
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.rect_min_size = minimum_size
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return portrait
+
+func _selection_label(parent, text, color):
+	var label = Label.new()
+	label.text = text
+	label.align = Label.ALIGN_CENTER
+	label.autowrap = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_color_override("font_color", color)
+	parent.add_child(label)
+	return label
+
+func _set_character_selection_target(target):
+	character_selection_target = target
+	_show_character_select(true)
+
+func _on_character_card_pressed(character_id):
+	if character_selection_target == "player":
+		selected_character_id = character_id
+	else:
+		selected_opponent_id = character_id
+	_show_character_select(true)
 
 func _confirm_character():
-	var player_index = max(0, character_option.get_selected())
-	var opponent_index = max(0, opponent_option.get_selected())
-	GameSession.player_character_id = GameSession.CHARACTER_DATA[player_index].id
-	GameSession.opponent_character_id = GameSession.CHARACTER_DATA[opponent_index].id
+	GameSession.player_character_id = selected_character_id
+	GameSession.opponent_character_id = selected_opponent_id
 	_show_arena_select()
 
-func _show_arena_select():
+func _show_arena_select(preserve_selection = false):
 	screen = "arena"
-	selected_arena_id = GameSession.selected_arena_id
-	var column = _panel(_new_ui(), "CHOOSE YOUR BATTLEFIELD", "Each arena has its own terrain, light, and mood.")
-	arena_option = OptionButton.new()
-	for index in range(GameSession.ARENA_DATA.size()):
-		var arena = GameSession.ARENA_DATA[index]
-		arena_option.add_item("%s — %s" % [arena.name, arena.description])
-		if arena.id == selected_arena_id:
-			arena_option.select(index)
-	var preview = ArenaPreviewScript.new()
-	preview.name = "ArenaPreview"
-	preview.arena_id = selected_arena_id
-	preview.rect_min_size = Vector2(360, 220)
-	column.add_child(preview)
-	column.add_child(arena_option)
-	arena_option.connect("item_selected", self, "_on_arena_selected", [preview])
-	_button(column, "RANDOM ARENA", "_random_arena")
-	_button(column, "BACK", "_go_back")
-	_button(column, "START BATTLE  >", "_start_battle")
+	if not preserve_selection:
+		selected_arena_id = GameSession.selected_arena_id
+	var root = _new_ui()
+	var layout = VBoxContainer.new()
+	layout.anchor_left = 0.045
+	layout.anchor_top = 0.06
+	layout.anchor_right = 0.955
+	layout.anchor_bottom = 0.94
+	layout.add_constant_override("separation", 12)
+	root.add_child(layout)
 
-func _on_arena_selected(index, preview):
-	selected_arena_id = GameSession.ARENA_DATA[index].id
-	preview.arena_id = selected_arena_id
-	preview.update()
+	var title_row = HBoxContainer.new()
+	layout.add_child(title_row)
+	_home_label(title_row, "CHOOSE YOUR BATTLEFIELD", Color("#f0f6ff"))
+	var title_spacer = Control.new()
+	title_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title_spacer)
+	_home_label(title_row, "%d ARENAS  •  CLICK A CARD TO SELECT" % GameSession.ARENA_DATA.size(), Color("#79d9e8"))
+	_home_label(layout, "Every arena has its own atmosphere and fighting ground.", Color("#aabbd0"))
+
+	var card_row = HBoxContainer.new()
+	card_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card_row.add_constant_override("separation", 14)
+	layout.add_child(card_row)
+	for arena in GameSession.ARENA_DATA:
+		_add_arena_card(card_row, arena, arena.id == selected_arena_id)
+
+	var action_row = HBoxContainer.new()
+	action_row.add_constant_override("separation", 12)
+	layout.add_child(action_row)
+	_home_menu_button(action_row, "BACK", "_go_back")
+	var action_spacer = Control.new()
+	action_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_row.add_child(action_spacer)
+	_home_menu_button(action_row, "RANDOM ARENA", "_random_arena")
+	_home_menu_button(action_row, "START BATTLE  >", "_start_battle", true)
+
+func _add_arena_card(parent, arena, selected):
+	var card = Button.new()
+	card.text = ""
+	card.focus_mode = Control.FOCUS_ALL
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card.rect_min_size = Vector2(0, 300)
+	card.connect("pressed", self, "_on_arena_card_pressed", [arena.id])
+	var normal = StyleBoxFlat.new()
+	normal.bg_color = Color("#122238") if selected else Color(0.035, 0.065, 0.12, 0.94)
+	normal.border_color = arena.accent if selected else Color("#435b76")
+	normal.set_border_width_all(2 if selected else 1)
+	normal.set_corner_radius_all(12)
+	normal.content_margin_left = 10
+	normal.content_margin_right = 10
+	normal.content_margin_top = 10
+	normal.content_margin_bottom = 10
+	var hover = StyleBoxFlat.new()
+	hover.bg_color = Color("#1a3048")
+	hover.border_color = arena.accent
+	hover.set_border_width_all(2)
+	hover.set_corner_radius_all(12)
+	card.add_stylebox_override("normal", normal)
+	card.add_stylebox_override("hover", hover)
+	card.add_stylebox_override("focus", hover)
+	parent.add_child(card)
+
+	var body = VBoxContainer.new()
+	body.anchor_right = 1.0
+	body.anchor_bottom = 1.0
+	body.margin_left = 4
+	body.margin_top = 4
+	body.margin_right = -4
+	body.margin_bottom = -4
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_constant_override("separation", 8)
+	card.add_child(body)
+	var preview = ArenaPreviewScript.new()
+	preview.arena_id = arena.id
+	preview.rect_min_size = Vector2(0, 190)
+	preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body.add_child(preview)
+	_selection_label(body, arena.name, Color("#f0f6ff"))
+	_selection_label(body, arena.description, Color("#bdcadd"))
+	_selection_label(body, "SELECTED" if selected else "TAP TO SELECT", arena.accent)
+
+func _on_arena_card_pressed(arena_id):
+	selected_arena_id = arena_id
+	_show_arena_select(true)
 
 func _random_arena():
 	var index = randi() % GameSession.ARENA_DATA.size()
 	selected_arena_id = GameSession.ARENA_DATA[index].id
-	arena_option.select(index)
-	var preview = ui_layer.find_node("ArenaPreview", true, false)
-	if is_instance_valid(preview):
-		preview.arena_id = selected_arena_id
-		preview.update()
+	_show_arena_select(true)
 
 func _start_battle():
 	GameSession.selected_arena_id = selected_arena_id
@@ -331,6 +658,7 @@ func _configure_fighter(fighter, data, team_id, spawn, arena_data):
 	fighter.color_main = data.color
 	fighter.color_accent = data.accent
 	fighter.sprite_texture = load(data.sprite_path)
+	fighter.run_cycle_texture = load("res://assets/sprites/%s_run_cycle.png" % data.id)
 	fighter.position = spawn
 	fighter.arena_left = arena_data.left_bound
 	fighter.arena_right = arena_data.right_bound

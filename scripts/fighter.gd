@@ -41,6 +41,7 @@ var knockback = 0.0
 var is_guarding = false
 var combat_enabled = true
 var sprite_texture: Texture
+var run_cycle_texture: Texture
 var animated_sprite: AnimatedSprite
 var attack_hitbox
 var hurtbox
@@ -86,13 +87,20 @@ func _create_sprite_frames(atlas: Texture) -> SpriteFrames:
     frames.remove_animation("default")
     for animation_name in ANIMATION_CELLS:
         frames.add_animation(animation_name)
-        frames.set_animation_speed(animation_name, 8.0)
+        frames.set_animation_speed(animation_name, 9.0 if animation_name == "run" else 8.0)
         frames.set_animation_loop(animation_name, animation_name != "ko" and animation_name != "attack")
-        for cell in ANIMATION_CELLS[animation_name]:
-            var atlas_frame = AtlasTexture.new()
-            atlas_frame.atlas = atlas
-            atlas_frame.region = Rect2(cell.x * 384, cell.y * 512, 384, 512)
-            frames.add_frame(animation_name, atlas_frame)
+        if animation_name == "run" and run_cycle_texture != null:
+            for frame_index in range(4):
+                var run_frame = AtlasTexture.new()
+                run_frame.atlas = run_cycle_texture
+                run_frame.region = Rect2(frame_index * 384, 0, 384, 512)
+                frames.add_frame(animation_name, run_frame)
+        else:
+            for cell in ANIMATION_CELLS[animation_name]:
+                var atlas_frame = AtlasTexture.new()
+                atlas_frame.atlas = atlas
+                atlas_frame.region = Rect2(cell.x * 384, cell.y * 512, 384, 512)
+                frames.add_frame(animation_name, atlas_frame)
     return frames
 func _physics_process(delta):
     var was_on_floor = is_on_floor()
@@ -126,12 +134,12 @@ func _physics_process(delta):
         velocity.x = move_toward(velocity.x, 0, move_speed * 7 * delta)
     velocity = move_and_slide(velocity, Vector2.UP)
     global_position.x=clamp(global_position.x,arena_left,arena_right)
-    if global_position.y>=535: global_position.y=535
     if not was_on_floor and is_on_floor():
         landing_squash = 1.0
     landing_squash = move_toward(landing_squash, 0.0, delta * 5.5)
     var run_amount = clamp(abs(velocity.x) / max(1.0, move_speed), 0.0, 1.25)
-    run_cycle_phase = fposmod(run_cycle_phase + delta * TAU * 7.0 * run_amount, TAU)
+    var run_cadence = clamp(abs(velocity.x) / 280.0, 0.7, 1.35)
+    run_cycle_phase = fposmod(run_cycle_phase + delta * TAU * 2.25 * run_amount * run_cadence, TAU)
     _refresh_visual(delta)
     update()
 func _controls():
@@ -255,6 +263,7 @@ func _refresh_visual(delta: float):
     elif target_animation != "ko" and not animated_sprite.is_playing():
         animated_sprite.play(target_animation)
 
+    animated_sprite.speed_scale = clamp(abs(velocity.x) / 280.0, 0.7, 1.35) if target_animation == "run" else 1.0
     var target_position = Vector2(0.0, -70.0)
     var target_scale = Vector2(0.28, 0.28)
     var target_rotation = 0.0
