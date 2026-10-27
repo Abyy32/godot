@@ -515,7 +515,7 @@ func _show_arena_select(preserve_selection = false):
 	layout.anchor_left = 0.045
 	layout.anchor_top = 0.06
 	layout.anchor_right = 0.955
-	layout.anchor_bottom = 0.915
+	layout.anchor_bottom = 0.82
 	layout.add_constant_override("separation", 12)
 	root.add_child(layout)
 
