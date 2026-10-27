@@ -3,8 +3,18 @@ class_name ArenaPreview
 
 var arena_id = "forest_shrine"
 
+func _ready() -> void:
+	update()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		update()
+
 func _draw() -> void:
-	draw_set_transform(Vector2.ZERO, 0.0, rect_size / Vector2(360.0, 220.0))
+	var preview_size = rect_size
+	if preview_size.x <= 0.0 or preview_size.y <= 0.0:
+		preview_size = rect_min_size
+	draw_set_transform(Vector2.ZERO, 0.0, preview_size / Vector2(360.0, 220.0))
 	match arena_id:
 		"forest_shrine":
 			_draw_forest()

@@ -343,7 +343,7 @@ func _show_character_select(preserve_selection = false):
 	layout.anchor_left = 0.045
 	layout.anchor_top = 0.045
 	layout.anchor_right = 0.955
-	layout.anchor_bottom = 0.955
+	layout.anchor_bottom = 0.93
 	layout.add_constant_override("separation", 12)
 	root.add_child(layout)
 
@@ -515,7 +515,7 @@ func _show_arena_select(preserve_selection = false):
 	layout.anchor_left = 0.045
 	layout.anchor_top = 0.06
 	layout.anchor_right = 0.955
-	layout.anchor_bottom = 0.94
+	layout.anchor_bottom = 0.915
 	layout.add_constant_override("separation", 12)
 	root.add_child(layout)
 
@@ -529,6 +529,7 @@ func _show_arena_select(preserve_selection = false):
 	_home_label(layout, "Every arena has its own atmosphere and fighting ground.", Color("#aabbd0"))
 
 	var card_row = HBoxContainer.new()
+	card_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	card_row.add_constant_override("separation", 14)
 	layout.add_child(card_row)
@@ -584,7 +585,7 @@ func _add_arena_card(parent, arena, selected):
 	card.add_child(body)
 	var preview = ArenaPreviewScript.new()
 	preview.arena_id = arena.id
-	preview.rect_min_size = Vector2(0, 190)
+	preview.rect_min_size = Vector2(360, 220)
 	preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
